@@ -1,0 +1,66 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://flyparkr1.mysql.rds.aliyuncs.com:3306/flypark?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true
+    username: yanfa
+    password: fly123456
+    type: com.zaxxer.hikari.HikariDataSource
+    test-while-idle: true
+    test-on-borrow: true
+    hikari:
+      pool-name: payHikariCP
+      #最小空闲数
+      minimum-idle: 5
+      #链接超时
+      connection-timeout: 30000
+      #最大连接数
+      maximum-pool-size: 100
+      maxLifetime: 28800000
+      # HikariCP 推荐 MySQL 优化
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 300
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        #使用内部状态而不是调用数据库或盲目发指令来 commit() 或 rollback()
+        useLocalTransactionState: true
+        rewriteBatchedStatements: true
+        #设为 true，默认 50
+        cacheResultSetMetadata: true
+        metadataCacheSize: 300
+        #缓存 'SHOW VARIABLES' and 'SHOW COLLATION'
+        cacheServerConfiguration: true
+        #不保留内部定时器去计算 idle time，一条 query 至少移除两次 System.getCurrentTimeMillis()  调用
+        maintainTimeStats: false
+      connection-test-query: SELECT 1
+      health-check-properties:
+        connectivityCheckTimeoutMs: 1000
+        expected99thPercentileMs: 10
+
+mybatis:
+  mapperLocations: classpath*:mapper/*.xml
+  typeAliasesPackage: com.yunpark.hikpluginserver.dto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+  type-handlers-package: cn.tnar.flyos.typehandler
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+server:
+  port: 9095
+
+logging:
+  file: hikpluginserver.log
+  level:
+    root: INFO
+
+tnar:
+  hikIP:
+  hikPort:
+  secretKey: 1234567890Abcdef
+  kesbUrl: http://47.92.35.7:8085/kesb_req

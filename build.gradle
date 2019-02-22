@@ -1,0 +1,85 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.3.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.yunaprk'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.retry:spring-retry:1.2.3.RELEASE'
+    implementation 'com.github.pagehelper:pagehelper:4.1.6'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-text:1.6'
+    implementation 'com.squareup.okhttp3:okhttp:3.6.0'
+    implementation 'com.google.code.gson:gson'
+    implementation 'io.netty:netty-all:4.0.30.Final'
+    implementation 'commons-codec:commons-codec:1.4'
+    implementation 'io.springfox:springfox-swagger2:2.8.0'
+    implementation 'io.springfox:springfox-swagger-ui:2.8.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+task copyConfigFile(type: Copy) {
+    from('src/main/resources') {
+        include 'application.yml'
+    }
+    into 'build/libs'
+    rename ('yml', 'yml.' + version)
+}
+
+bootJar.finalizedBy copyConfigFile
+
+task zipSrc(type: Zip) {
+    classifier = 'src'
+    destinationDir = projectDir
+    archiveName = new Date().format('yyMMdd.') + archiveName
+
+    from projectDir
+    into project.name
+    exclude archiveName, '.gradle', 'build'
+}
+
+task zipDist(type: Zip, dependsOn: ':bootRepackage') {
+    classifier = 'dist'
+    destinationDir = buildDir
+
+    into baseName
+    from('build/libs') {
+        include baseName + '-' + version + '.jar'
+    }
+    from('src/main/shell')
+    from('src/main/resources') {
+        include 'application.yml'
+    }
+}
+
+task tgzDist(type: Tar, dependsOn: ':bootJar') {
+    classifier = 'dist'
+    destinationDir = buildDir
+    compression = Compression.GZIP
+
+    into baseName
+    from('build/libs') {
+        include baseName + '-' + version + '.jar'
+    }
+    from('src/main/shell')
+    from('src/main/resources') {
+        include 'application.yml'
+    }
+}
